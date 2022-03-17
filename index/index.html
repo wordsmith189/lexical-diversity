@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Lexical Diversity Measures</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Lars Hinrichs" />
+    <meta name="date" content="2022-03-16" />
+    <script src="index_files/header-attrs/header-attrs.js"></script>
+    <link href="index_files/tile-view/tile-view.css" rel="stylesheet" />
+    <script src="index_files/tile-view/tile-view.js"></script>
+    <link href="index_files/panelset/panelset.css" rel="stylesheet" />
+    <script src="index_files/panelset/panelset.js"></script>
+    <script src="index_files/fabric/fabric.min.js"></script>
+    <link href="index_files/xaringanExtra-scribble/scribble.css" rel="stylesheet" />
+    <script src="index_files/xaringanExtra-scribble/scribble.js"></script>
+    <script>document.addEventListener('DOMContentLoaded', function() { window.xeScribble = new Scribble({"pen_color":["#FF0000"],"pen_size":3,"eraser_size":30,"palette":[]}) })</script>
+    <script src="index_files/kePrint/kePrint.js"></script>
+    <link href="index_files/lightable/lightable.css" rel="stylesheet" />
+    <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Lexical Diversity Measures
+## E 382J Digital Text Analysis
+### Lars Hinrichs
+### 2022-03-16
+
+---
+
+layout: true
+class: middle
+
+
+
+
+
+
+
+
+
+
+---
+
+# Why lexical diversity?
+
+It is considered a measure of information density in a text sample. 
+
+---
+
+# TTR
+
+Type-token ratio is the archetype of lexical diversity measures.
+
+$$
+TTR = \frac{V}{N}
+$$
+where `\(V\)` is the number of distinct types in a sample and `\(N\)` is the number of tokens in the same sample.
+
+---
+
+TTR is a good and functional measure of LD. Its only problem: it is not fully robust against sample length variation. 
+&lt;p&gt;
+&lt;br&gt;&lt;br&gt;
+
+---
+
+TTR is a good and functional measure of LD. Its only problem: it is not robust against sample length variation. 
+&lt;p&gt;
+The longer your sample, the lower its TTR, when the the samples are from the same basic text.
+
+---
+
+To demonstrate, let us work with different sample lengths from the novel previewed below. We'll start with the TTR of the first 100 words and then increment in steps of 100.
+
+
+
+&lt;table class=" lightable-paper" style='font-family: "Arial Narrow", arial, helvetica, sans-serif; margin-left: auto; margin-right: auto;'&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; text &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; book &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; By Jane Austen &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Emma &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Emma Woodhouse, handsome, clever, and rich, with a comfortable home &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Emma &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; and happy disposition, seemed to unite some of the best blessings of &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Emma &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; existence; and had lived nearly twenty-one years in the world with very &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Emma &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; little to distress or vex her. &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Emma &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; She was the youngest of the two daughters of a most affectionate, &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Emma &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; indulgent father; and had, in consequence of her sister's marriage, been &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Emma &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; mistress of his house from a very early period. Her mother had died &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Emma &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; too long ago for her to have more than an indistinct remembrance of &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Emma &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; her caresses; and her place had been supplied by an excellent woman as &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Emma &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+
+
+---
+
+## Define a custom function
+
+With `n` as input, extract sample of that size from  beginning of *Emma* and return a one-row tibble with `n` in the 1st column and `ttr` as the 2nd. Uses {quanteda, quanteda.textstats}.
+
+
+
+```r
+get_emma_ttr &lt;- function(n) {
+    emstring &lt;- 
+      emma_tokens %&gt;% 
+      slice(1:n) %&gt;% 
+      pull(word) %&gt;% 
+      paste(collapse = " ") %&gt;% 
+      tokens()
+    textstat_lexdiv(emstring, measure="all") %&gt;% 
+      as_tibble() %&gt;% 
+      mutate(n_tokens = n) %&gt;% 
+      select(-document, n_tokens, everything())
+  }
+```
+
+---
+
+## Calculate a sequence of TTR
+
+Calculate TTR for *Emma*-samples from n=50 to n=3000 in steps of 50.
+
+
+```r
+my_seq &lt;- 
+  seq(50, 3000, 50)
+
+ttr_tibble &lt;- tibble()
+
+for (i in my_seq){
+  ttr_tibble &lt;- 
+    rbind(ttr_tibble, get_emma_ttr(i))
+}
+```
+
+Next, we visualize that.
+
+---
+layout: false
+
+The decrease is especially steep when n is smaller.
+
+.panelset[
+
+```r
+ttr_tibble %&gt;% 
+  ggplot(aes(n_tokens, TTR)) +
+  geom_point() +
+  geom_line(size=1.5, alpha=.6, color="darkgreen") +
+  labs(title = "TTR decreases as sample size increases",
+       x="n tokens sampled (from beginning)",
+       y="Type-token ratio",
+       caption = expression(paste("Sampled text: ", italic("Emma"), " by Jane Austen"))) +
+  theme_bw(base_family = "serif") +
+  theme(panel.background = element_rect(fill = "#D3D3D3"),
+        plot.background = element_rect(fill = "#D3D3D3"))
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-4-1.png" width="100%" /&gt;
+]
+
+---
+
+## An alternative: TTR with moving window
+
+.left-column[
+Herdan's *C*
+
+$$
+C = \frac{log V}{log N}
+$$
+
+a.k.a. "log-TTR"
+
+]
+
+.right-column[
+&lt;img src="index_files/figure-html/unnamed-chunk-5-1.png" width="100%" /&gt;
+
+
+]
+
+---
+
+## CTTR
+
+.left-column[
+Carroll's *Corrected TTR*
+
+$$
+CTTR = \frac{V}{\sqrt{2N}}
+$$
+
+]
+
+.right-column[
+&lt;img src="index_files/figure-html/unnamed-chunk-6-1.png" width="100%" /&gt;
+
+
+]
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"slideNumberFormat": "%current%",
+"highlightStyle": "github",
+"highlightLines": true,
+"ratio": "16:9",
+"countIncrementalSlides": true
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

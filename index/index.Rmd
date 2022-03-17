@@ -1,0 +1,251 @@
+---
+title: "Lexical Diversity Measures"
+subtitle: "E 382J Digital Text Analysis"  
+author: 
+  - "Lars Hinrichs"
+date: '`r Sys.Date()`'
+output:
+  xaringan::moon_reader:
+    css: xaringan-themer.css
+    nature:
+      slideNumberFormat: "%current%"
+      highlightStyle: github
+      highlightLines: true
+      ratio: 16:9
+      countIncrementalSlides: true
+---
+layout: true
+class: middle
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+knitr::opts_chunk$set(
+  fig.width=9, fig.height=3.5, fig.retina=3,
+  out.width = "100%",
+  cache = TRUE,
+  echo = TRUE,
+  message = FALSE, 
+  warning = FALSE,
+  hiline = TRUE
+)
+```
+
+```{r xaringan-themer, include=FALSE, warning=FALSE}
+library(xaringanthemer)
+style_duo_accent(
+  primary_color = "#1381B0",
+  secondary_color = "#FF961C",
+  inverse_header_color = "#FFFFFF",
+  background_color = "#D3D3D3",
+  text_font_size = "1.6rem",
+  code_font_size = "1.1rem"
+)
+```
+
+```{r xaringanExtra, echo=FALSE}
+xaringanExtra::use_xaringan_extra(c("tile_view", "panelset", "scribble"))
+```
+
+```{r pkgs, include=FALSE}
+library(pacman)
+
+p_load(tidyverse, tidytext, quanteda, quanteda.textstats,
+       janeaustenr, kableExtra)
+```
+
+
+---
+
+# Why lexical diversity?
+
+It is considered a measure of information density in a text sample. 
+
+---
+
+# TTR
+
+Type-token ratio is the archetype of lexical diversity measures.
+
+$$
+TTR = \frac{V}{N}
+$$
+where $V$ is the number of distinct types in a sample and $N$ is the number of tokens in the same sample.
+
+---
+
+TTR is a good and functional measure of LD. Its only problem: it is not fully robust against sample length variation. 
+<p>
+<br><br>
+
+---
+
+TTR is a good and functional measure of LD. Its only problem: it is not robust against sample length variation. 
+<p>
+The longer your sample, the lower its TTR, when the the samples are from the same basic text.
+
+---
+
+To demonstrate, let us work with different sample lengths from the novel previewed below. We'll start with the TTR of the first 100 words and then increment in steps of 100.
+
+```{r load_jane, include=FALSE}
+original_books <- 
+  austen_books() %>%
+  group_by(book) %>%
+  mutate(line = row_number(),
+         chapter = 
+           cumsum(str_detect(text, 
+                             regex("^chapter [\\divxlc]",
+                             ignore_case = TRUE)))) %>%
+  ungroup()
+
+emma <- 
+  original_books %>% 
+  filter(book == "Emma",
+         !text == "",
+         !text == toupper(text)
+         )
+```
+
+```{r show-emma, echo=FALSE}
+emma %>% 
+  slice(1:10) %>% select(1, 2) %>% 
+  #mutate(text = str_sub(text, 1, 60)) %>% 
+  kbl() %>% 
+  kable_paper()
+```
+
+```{r include=FALSE}
+emma_tokens <- 
+  emma %>% 
+  slice(2:1002) %>% 
+  unnest_tokens(word, text)
+```
+
+---
+
+## Define a custom function
+
+With `n` as input, extract sample of that size from  beginning of *Emma* and return a one-row tibble with `n` in the 1st column and `ttr` as the 2nd. Uses {quanteda, quanteda.textstats}.
+
+
+```{r}
+get_emma_ttr <- function(n) {
+    emstring <- 
+      emma_tokens %>% 
+      slice(1:n) %>% 
+      pull(word) %>% 
+      paste(collapse = " ") %>% 
+      tokens()
+    textstat_lexdiv(emstring, measure="all") %>% 
+      as_tibble() %>% 
+      mutate(n_tokens = n) %>% 
+      select(-document, n_tokens, everything())
+  }
+```
+
+---
+
+## Calculate a sequence of TTR
+
+Calculate TTR for *Emma*-samples from n=50 to n=3000 in steps of 50.
+
+```{r}
+my_seq <- 
+  seq(50, 3000, 50)
+
+ttr_tibble <- tibble()
+
+for (i in my_seq){
+  ttr_tibble <- 
+    rbind(ttr_tibble, get_emma_ttr(i))
+}
+
+```
+
+Next, we visualize that.
+
+---
+layout: false
+
+The decrease is especially steep when n is smaller.
+
+.panelset[
+```{r panelset=TRUE}
+
+ttr_tibble %>% 
+  ggplot(aes(n_tokens, TTR)) +
+  geom_point() +
+  geom_line(size=1.5, alpha=.6, color="darkgreen") +
+  labs(title = "TTR decreases as sample size increases",
+       x="n tokens sampled (from beginning)",
+       y="Type-token ratio",
+       caption = expression(paste("Sampled text: ", italic("Emma"), " by Jane Austen"))) +
+  theme_bw(base_family = "serif") +
+  theme(panel.background = element_rect(fill = "#D3D3D3"),
+        plot.background = element_rect(fill = "#D3D3D3"))
+```
+]
+
+---
+
+## An alternative: TTR with moving window
+
+.left-column[
+Herdan's *C*
+
+$$
+C = \frac{log V}{log N}
+$$
+
+a.k.a. "log-TTR"
+
+]
+
+.right-column[
+```{r echo=FALSE, fig.height=4.2, fig.width=7}
+ttr_tibble %>% 
+  ggplot(aes(n_tokens, C)) +
+  geom_point() +
+  geom_line(size=1.5, alpha=.6, color="darkgreen") +
+  labs(title = expression(paste("Herdan's ", italic("C"))),
+       x="n tokens sampled (from beginning)",
+       y=expression(italic("C")),
+       caption = expression(paste("Sampled text: ", italic("Emma"), " by Jane Austen"))) +
+  theme_bw(base_family = "serif") +
+  theme(panel.background = element_rect(fill = "#D3D3D3"),
+        plot.background = element_rect(fill = "#D3D3D3"))
+```
+
+
+]
+
+---
+
+## CTTR
+
+.left-column[
+Carroll's *Corrected TTR*
+
+$$
+CTTR = \frac{V}{\sqrt{2N}}
+$$
+
+]
+
+.right-column[
+```{r echo=FALSE, fig.height=4.2, fig.width=7}
+ttr_tibble %>% 
+  ggplot(aes(n_tokens, CTTR)) +
+  geom_point() +
+  geom_line(size=1.5, alpha=.6, color="darkgreen") +
+  labs(title = expression(paste("Carroll's ", italic("Corrected TTR"))),
+       x="n tokens sampled (from beginning)",
+       y=expression(italic("C")),
+       caption = expression(paste("Sampled text: ", italic("Emma"), " by Jane Austen"))) +
+  theme_bw(base_family = "serif") +
+  theme(panel.background = element_rect(fill = "#D3D3D3"),
+        plot.background = element_rect(fill = "#D3D3D3"))
+```
+
+
+]
