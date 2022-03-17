@@ -3,8 +3,7 @@
   <head>
     <title>Lexical Diversity Measures</title>
     <meta charset="utf-8" />
-    <meta name="author" content="Lars Hinrichs" />
-    <meta name="date" content="2022-03-16" />
+    <meta name="author" content="E 382J Digital Text Analysis Lars Hinrichs | 2022" />
     <script src="index_files/header-attrs/header-attrs.js"></script>
     <link href="index_files/tile-view/tile-view.css" rel="stylesheet" />
     <script src="index_files/tile-view/tile-view.js"></script>
@@ -23,9 +22,8 @@
 class: center, middle, inverse, title-slide
 
 # Lexical Diversity Measures
-## E 382J Digital Text Analysis
-### Lars Hinrichs
-### 2022-03-16
+## Illustrated and Compared
+### E 382J Digital Text Analysis<br>Lars Hinrichs | 2022
 
 ---
 
@@ -40,6 +38,11 @@ class: middle
 
 
 
+---
+
+## Please note
+
+For calculations in this presentation, the lexdiv utility from {quanteda, quanteda.textstats} was used. &lt;p&gt;Explanations of the different statistics that follow are largely based on the [lexdiv tutorial](https://quanteda.io/reference/textstat_lexdiv.html) in the {quanteda} documentation.
 
 ---
 
@@ -60,7 +63,7 @@ where `\(V\)` is the number of distinct types in a sample and `\(N\)` is the num
 
 ---
 
-TTR is a good and functional measure of LD. Its only problem: it is not fully robust against sample length variation. 
+TTR is a good and functional measure of LD. Its only problem: it is not robust against sample length variation. 
 &lt;p&gt;
 &lt;br&gt;&lt;br&gt;
 
@@ -72,7 +75,7 @@ The longer your sample, the lower its TTR, when the the samples are from the sam
 
 ---
 
-To demonstrate, let us work with different sample lengths from the novel previewed below. We'll start with the TTR of the first 100 words and then increment in steps of 100.
+To demonstrate, let us work with different sample lengths from the novel previewed below. We'll start with the TTR of the first 50 words and then increment in steps of 50.
 
 
 
@@ -133,8 +136,7 @@ To demonstrate, let us work with different sample lengths from the novel preview
 
 ## Define a custom function
 
-With `n` as input, extract sample of that size from  beginning of *Emma* and return a one-row tibble with `n` in the 1st column and `ttr` as the 2nd. Uses {quanteda, quanteda.textstats}.
-
+With `n` as input, extract sample of that size from  beginning of *Emma* and return a one-row tibble with `n` in the 1st column and `ttr` as the 2nd. 
 
 
 ```r
@@ -152,12 +154,15 @@ get_emma_ttr &lt;- function(n) {
   }
 ```
 
+
 ---
 
 ## Calculate a sequence of TTR
 
 Calculate TTR for *Emma*-samples from n=50 to n=3000 in steps of 50.
 
+.pull-left[
+.small[
 
 ```r
 my_seq &lt;- 
@@ -170,36 +175,30 @@ for (i in my_seq){
     rbind(ttr_tibble, get_emma_ttr(i))
 }
 ```
+]
 
-Next, we visualize that.
+]
+
+.pull-right[
+
+&lt;p&gt;&lt;img src="emma.png" height=300 /&gt;&lt;/p&gt;.right[Next, we visualize that.]
+
+]
 
 ---
 layout: false
 
-The decrease is especially steep when n is smaller.
-
-.panelset[
-
-```r
-ttr_tibble %&gt;% 
-  ggplot(aes(n_tokens, TTR)) +
-  geom_point() +
-  geom_line(size=1.5, alpha=.6, color="darkgreen") +
-  labs(title = "TTR decreases as sample size increases",
-       x="n tokens sampled (from beginning)",
-       y="Type-token ratio",
-       caption = expression(paste("Sampled text: ", italic("Emma"), " by Jane Austen"))) +
-  theme_bw(base_family = "serif") +
-  theme(panel.background = element_rect(fill = "#D3D3D3"),
-        plot.background = element_rect(fill = "#D3D3D3"))
-```
 
 &lt;img src="index_files/figure-html/unnamed-chunk-4-1.png" width="100%" /&gt;
-]
+
+
+--
+
+The decrease is especially steep when n is smaller.
 
 ---
 
-## An alternative: TTR with moving window
+## An alternative: "log-TTR"
 
 .left-column[
 Herdan's *C*
@@ -207,8 +206,6 @@ Herdan's *C*
 $$
 C = \frac{log V}{log N}
 $$
-
-a.k.a. "log-TTR"
 
 ]
 
@@ -234,6 +231,40 @@ $$
 .right-column[
 &lt;img src="index_files/figure-html/unnamed-chunk-6-1.png" width="100%" /&gt;
 
+]
+
+---
+
+## Moving-Average TTR
+
+.left-column[
+
+.small[
+The Moving-Average TTR (MATTR) calculates TTRs for a moving window of tokens from the first to the last token, computing a TTR for each window. The MATTR is the mean of the TTRs of each window.
+]
+
+]
+
+.right-column[
+
+&lt;img src="index_files/figure-html/unnamed-chunk-7-1.png" width="100%" /&gt;
+]
+
+
+---
+
+## Mean Segmental TTR
+
+.left-column[
+
+.small[
+MSTTR (a.k.a. "split TTR") splits the tokens into segments of the given size, TTR for each segment is calculated and the mean of these values returned. 
+]
+
+]
+
+.right-column[
+&lt;img src="index_files/figure-html/unnamed-chunk-8-1.png" width="100%" /&gt;
 
 ]
     </textarea>

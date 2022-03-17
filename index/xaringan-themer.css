@@ -296,4 +296,8 @@ table.dataTable.hover tbody tr:hover, table.dataTable.display tbody tr:hover {
 .bg-black {
   background-color: var(--black);
 }
+.small {
+  font-size: 72%;
+  line-height: 1.4;
+}
 
