@@ -32,8 +32,8 @@ knitr::opts_chunk$set(
 library(xaringanthemer)
 style_duo_accent(
   primary_color = "#1381B0",
-  secondary_color = "#FF961C",
-  inverse_header_color = "#FFFFFF",
+  secondary_color = "#FFD050",
+  inverse_header_color = "#25221e",
   background_color = "#D3D3D3",
   text_font_size = "1.6rem",
   code_font_size = "1.1rem"
@@ -75,20 +75,27 @@ $$
 where $V$ is the number of distinct types in a sample and $N$ is the number of tokens in the same sample.
 
 ---
+layout: false
 
 TTR is a good and functional measure of LD. Its only problem: it is not robust against sample length variation. 
-<p>
-<br><br>
+
+--
+
+The longer your sample, the lower its TTR, when the the samples are from the same basic text. 
+
+--
+
+<hr>
+
+.small[Why does this make sense? Why would a longer sample have a lower TTR than a shorter sample of the same text?]
+
+---
+layout:true
+class:middle
 
 ---
 
-TTR is a good and functional measure of LD. Its only problem: it is not robust against sample length variation. 
-<p>
-The longer your sample, the lower its TTR, when the the samples are from the same basic text.
-
----
-
-To demonstrate, let us work with different sample lengths from the novel previewed below. We'll start with the TTR of the first 50 words and then increment in steps of 50.
+To demonstrate, let us work with different sample lengths from the novel previewed below. 
 
 ```{r load_jane, include=FALSE}
 original_books <- 
@@ -124,6 +131,20 @@ emma_tokens <-
   slice(2:1002) %>% 
   unnest_tokens(word, text)
 ```
+
+---
+
+The text of *Emma* was obtained from Julia Silge's [{janeaustenr}](https://cran.r-project.org/web/packages/janeaustenr/index.html) package and prepared using the routine presented in Silge & Robinson's [*Tidy Text Mining*](www.tidytextming.com).
+
+---
+
+We'll start with the TTR of the first 50 words and then increment in steps of 50. To be more exact, we will perform the following steps repeatedly:
+
+- Extract a sample of a certain length (50 words, 100 words, 150 words, etc.) from *Emma*
+- Get its lexical diversity statistic (the TTR value)
+- Store the sample length and the TTR in two columns of a tibble.
+
+Because this is repetitive, we'll define a custom function - see next slide.
 
 ---
 
@@ -190,7 +211,7 @@ layout: false
 ttr_tibble %>% 
   ggplot(aes(n_tokens, TTR)) +
   geom_point() +
-  geom_line(size=1.5, alpha=.6, color="darkred") +
+  geom_line(size=2, alpha=.6, color="darkred") +
   labs(title = "TTR decreases as sample size increases",
        x="n tokens sampled (from beginning)",
        y="Type-token ratio",
@@ -220,7 +241,7 @@ $$
 ttr_tibble %>% 
   ggplot(aes(n_tokens, C)) +
   geom_point() +
-  geom_line(size=1.5, alpha=.6, color="darkred") +
+  geom_line(size=2, alpha=.6, color="darkred") +
   labs(title = expression(paste("Herdan's ", italic("C"))),
        x="n tokens sampled (from beginning)",
        y=expression(italic("C")),
@@ -251,7 +272,7 @@ $$
 ttr_tibble %>% 
   ggplot(aes(n_tokens, CTTR)) +
   geom_point() +
-  geom_line(size=1.5, alpha=.6, color="darkred") +
+  geom_line(size=2, alpha=.6, color="darkred") +
   labs(title = expression(paste("Carroll's ", italic("Corrected TTR"))),
        x="n tokens sampled (from beginning)",
        y=expression(italic("CTTR")),
@@ -281,7 +302,7 @@ The Moving-Average TTR (MATTR) calculates TTRs for a moving window of tokens fro
 ttr_tibble %>% 
   ggplot(aes(n_tokens, MATTR)) +
   geom_point() +
-  geom_line(size=1.5, alpha=.6, color="darkred") +
+  geom_line(size=2, alpha=.6, color="darkred") +
   labs(title = "MATTR",
        x="n tokens sampled (from beginning)",
        y="MATTR",
@@ -310,7 +331,7 @@ MSTTR (a.k.a. "split TTR") splits the tokens into segments of the given size, TT
 ttr_tibble %>% 
   ggplot(aes(n_tokens, MSTTR)) +
   geom_point() +
-  geom_line(size=1.5, alpha=.6, color="darkred") +
+  geom_line(size=2, alpha=.6, color="darkred") +
   labs(title = "MSTTR",
        x="n tokens sampled (from beginning)",
        y="MSTTR",
