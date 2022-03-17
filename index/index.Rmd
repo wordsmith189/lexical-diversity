@@ -41,7 +41,7 @@ style_duo_accent(
 ```
 
 ```{r xaringanExtra, echo=FALSE}
-xaringanExtra::use_xaringan_extra(c("tile_view", "panelset", "scribble"))
+xaringanExtra::use_xaringan_extra(c("tile_view"))
 ```
 
 ```{r pkgs, include=FALSE}
