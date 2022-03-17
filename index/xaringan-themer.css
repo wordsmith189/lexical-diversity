@@ -300,4 +300,8 @@ table.dataTable.hover tbody tr:hover, table.dataTable.display tbody tr:hover {
   font-size: 72%;
   line-height: 1.4;
 }
+.title-slide {
+  background-image: url(umbr.png);
+  background-size: cover;
+}
 
