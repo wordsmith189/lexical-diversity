@@ -115,18 +115,6 @@ To demonstrate, let us work with different sample lengths from the novel preview
    &lt;td style="text-align:left;"&gt; indulgent father; and had, in consequence of her sister's marriage, been &lt;/td&gt;
    &lt;td style="text-align:left;"&gt; Emma &lt;/td&gt;
   &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:left;"&gt; mistress of his house from a very early period. Her mother had died &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; Emma &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:left;"&gt; too long ago for her to have more than an indistinct remembrance of &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; Emma &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:left;"&gt; her caresses; and her place had been supplied by an excellent woman as &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; Emma &lt;/td&gt;
-  &lt;/tr&gt;
 &lt;/tbody&gt;
 &lt;/table&gt;
 
@@ -188,17 +176,19 @@ for (i in my_seq){
 ---
 layout: false
 
+.left-column[
+
+]
+
+.right-column[
 
 &lt;img src="index_files/figure-html/unnamed-chunk-4-1.png" width="100%" /&gt;
 
-
---
-
-The decrease is especially steep when n is smaller.
+]
 
 ---
 
-## An alternative: "log-TTR"
+## An alternative: log-TTR
 
 .left-column[
 Herdan's *C*
@@ -217,7 +207,7 @@ $$
 
 ---
 
-## CTTR
+## Corrected TTR
 
 .left-column[
 Carroll's *Corrected TTR*
@@ -267,6 +257,16 @@ MSTTR (a.k.a. "split TTR") splits the tokens into segments of the given size, TT
 &lt;img src="index_files/figure-html/unnamed-chunk-8-1.png" width="100%" /&gt;
 
 ]
+
+---
+
+class: inverse, center, middle
+
+## Many thanks for viewing these slides
+
+For a complete list and discussion of the lexical diversity measures that are implemented in the {quanteda.textstats} package, visit https://quanteda.io/reference/textstat_lexdiv.html.
+
+My website: https://larshinrichs.site
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
