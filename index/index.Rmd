@@ -4,7 +4,7 @@ subtitle: "Illustrated and Compared"
 author: "E 382J Digital Text Analysis<br>Lars Hinrichs | 2022"
 output:
   xaringan::moon_reader:
-    css: xaringan-themer.css
+    css: [xaringan-themer.css, mycss.css]
     nature:
       slideNumberFormat: "%current%"
       highlightStyle: github
@@ -347,7 +347,7 @@ ttr_tibble %>%
 
 class: inverse, center, middle
 
-## Many thanks for viewing 
+## Thanks for viewing 
 
 For a complete list and discussion of the lexical diversity measures that are implemented in the {quanteda.textstats} package, visit https://quanteda.io/reference/textstat_lexdiv.html.
 
